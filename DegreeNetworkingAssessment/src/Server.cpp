@@ -206,7 +206,7 @@ void main(int argc, char* argv[]) {
 	std::cout << "Y: packet delay percentage as float" << std::endl;
 	std::cout << "Z: delay range in seconds as float" << std::endl << std::endl;
 
-	unsigned int entityCount = 100;
+	unsigned int entityCount = 1000;
 	float radius = 50;
 	float packetlossPercentage = 10;
 	float delayPercentage = 10;

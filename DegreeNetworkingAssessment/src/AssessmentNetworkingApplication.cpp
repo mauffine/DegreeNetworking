@@ -117,6 +117,24 @@ bool AssessmentNetworkingApplication::update(float deltaTime) {
 			}
 			stream.Read((char*)m_aiEntities.data(), size);
 
+
+			for (int i = 0; i < m_aiEntities.size(); ++i)
+			{
+				m_localAiEntities[i].velocity = m_aiEntities[i].velocity;
+				float temp = sqrtf(pow(m_localAiEntities[i].position.x - m_aiEntities[i].position.x, 2) + pow(m_localAiEntities[i].position.y - m_aiEntities[i].position.y, 2));
+				if (temp > 1.0f)
+				{
+					m_localAiEntities[i].displacedTick++;
+				}
+				else
+				{
+					m_localAiEntities[i].displacedTick = 0;
+				}
+				if (m_localAiEntities[i].displacedTick > 3 || m_aiEntities[i].teleported)
+				{
+					m_localAiEntities[i].position = m_aiEntities[i].position;
+				}
+			}
 			break;
 		}
 		default:
@@ -135,9 +153,12 @@ bool AssessmentNetworkingApplication::update(float deltaTime) {
 		Gizmos::addLine(vec3(10, 0, -10 + i), vec3(-10, 0, -10 + i),
 						i == 10 ? vec4(1, 1, 1, 1) : vec4(0, 0, 0, 1));
 	}
+	for (auto& ai : m_localAiEntities) {
+		ai.position.x += ai.velocity.x * 0.0166666666666667f;
+		ai.position.y += ai.velocity.y * 0.0166666666666667f;
+	}
 	return true;
 }
-
 void AssessmentNetworkingApplication::draw() {
 
 	// clear the screen for this frame
@@ -148,7 +169,10 @@ void AssessmentNetworkingApplication::draw() {
 		vec3 p1 = vec3(ai.position.x + ai.velocity.x * 0.25f, 0, ai.position.y + ai.velocity.y * 0.25f);
 		vec3 p2 = vec3(ai.position.x, 0, ai.position.y) - glm::cross(vec3(ai.velocity.x, 0, ai.velocity.y), vec3(0, 1, 0)) * 0.1f;
 		vec3 p3 = vec3(ai.position.x, 0, ai.position.y) + glm::cross(vec3(ai.velocity.x, 0, ai.velocity.y), vec3(0, 1, 0)) * 0.1f;
-		Gizmos::addTri(p1, p2, p3, glm::vec4(1, 0, 0, 1));
+		if (ai.id == 1)
+			Gizmos::addTri(p1, p2, p3, glm::vec4(0, 1, 0, 1));
+		else
+			Gizmos::addTri(p1, p2, p3, glm::vec4(1, 0, 0, 1));
 	}
 
 	// display the 3D gizmos

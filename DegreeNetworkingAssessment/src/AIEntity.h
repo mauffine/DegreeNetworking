@@ -33,6 +33,7 @@ struct AIVector {
 // basic AI entity data that is broadcast by the server
 struct AIEntity {
 	unsigned int id;
+	unsigned int displacedTick = 0;
 	AIVector position;
 	AIVector velocity;
 	bool teleported;
