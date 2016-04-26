@@ -106,7 +106,7 @@ bool AssessmentNetworkingApplication::update(float deltaTime) {
 			unsigned int size = 0;
 			stream.Read(size);
 
-			// first time receiving entities
+			// first time receiving entities setup and create local copy
 			if (m_aiEntities.size() == 0) {
 				m_aiEntities.resize(size / sizeof(AIEntity));
 			}
@@ -117,10 +117,11 @@ bool AssessmentNetworkingApplication::update(float deltaTime) {
 			}
 			stream.Read((char*)m_aiEntities.data(), size);
 
-
+			// sync the local version of the Ai entities to server version
 			for (int i = 0; i < m_aiEntities.size(); ++i)
 			{
 				m_localAiEntities[i].velocity = m_aiEntities[i].velocity;
+				// Check if the position is off by a significant amount, if it is for 3 checks, teleport entity to it's real position
 				float temp = sqrtf(pow(m_localAiEntities[i].position.x - m_aiEntities[i].position.x, 2) + pow(m_localAiEntities[i].position.y - m_aiEntities[i].position.y, 2));
 				if (temp > 1.0f)
 				{
@@ -153,6 +154,7 @@ bool AssessmentNetworkingApplication::update(float deltaTime) {
 		Gizmos::addLine(vec3(10, 0, -10 + i), vec3(-10, 0, -10 + i),
 						i == 10 ? vec4(1, 1, 1, 1) : vec4(0, 0, 0, 1));
 	}
+	//update local AI entity's position based on it's velicity
 	for (auto& ai : m_localAiEntities) {
 		ai.position.x += ai.velocity.x * 0.0166666666666667f;
 		ai.position.y += ai.velocity.y * 0.0166666666666667f;
