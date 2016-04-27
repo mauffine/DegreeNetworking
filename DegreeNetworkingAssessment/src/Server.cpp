@@ -208,7 +208,7 @@ void main(int argc, char* argv[]) {
 
 	unsigned int entityCount = 1000;
 	float radius = 50;
-	float packetlossPercentage = 10;
+	float packetlossPercentage = 50; 
 	float delayPercentage = 10;
 	float delayRange = 1;
 

@@ -24,6 +24,7 @@ public:
 	virtual void draw();
 
 private:
+	float Lerp(float a_start, float a_end, float a_lerpAmount, float a_allowance);
 
 	RakNet::RakPeerInterface*	m_peerInterface;
 
@@ -31,4 +32,5 @@ private:
 
 	std::vector<AIEntity>		m_aiEntities;
 	std::vector<AIEntity>		m_localAiEntities;
+	int m_packetsRecieved = 0;
 };

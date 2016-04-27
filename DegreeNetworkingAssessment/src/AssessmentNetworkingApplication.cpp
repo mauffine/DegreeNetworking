@@ -28,7 +28,6 @@ AssessmentNetworkingApplication::~AssessmentNetworkingApplication() {
 }
 
 bool AssessmentNetworkingApplication::startup() {
-
 	// setup the basic window
 	createWindow("Client Application", 1280, 720);
 
@@ -100,6 +99,8 @@ bool AssessmentNetworkingApplication::update(float deltaTime) {
 			std::cout << "Connection lost." << std::endl;
 			break;
 		case ID_ENTITY_LIST: {
+			++m_packetsRecieved;
+			std::cout << m_packetsRecieved << " Packets Recieved" << std::endl;
 			// receive list of entities
 			RakNet::BitStream stream(packet->data, packet->length, false);
 			stream.IgnoreBytes(sizeof(RakNet::MessageID));
@@ -112,7 +113,7 @@ bool AssessmentNetworkingApplication::update(float deltaTime) {
 			}
 			if (m_localAiEntities.size() == 0) {
 				m_localAiEntities.resize(size / sizeof(AIEntity));
-
+				
 				stream.Read((char*)m_localAiEntities.data(), size);
 			}
 			stream.Read((char*)m_aiEntities.data(), size);
@@ -120,10 +121,15 @@ bool AssessmentNetworkingApplication::update(float deltaTime) {
 			// sync the local version of the Ai entities to server version
 			for (int i = 0; i < m_aiEntities.size(); ++i)
 			{
-				m_localAiEntities[i].velocity = m_aiEntities[i].velocity;
+				//lerp the velocity to reduce flickering
+				m_localAiEntities[i].velocity.x = Lerp(m_localAiEntities[i].velocity.x,
+					m_aiEntities[i].velocity.x, .2f, 0.0166666666666667f);
+				m_localAiEntities[i].velocity.y = Lerp(m_localAiEntities[i].velocity.y,
+					m_aiEntities[i].velocity.y, .2f, 0.0166666666666667f);
+				
 				// Check if the position is off by a significant amount, if it is for 3 checks, teleport entity to it's real position
 				float temp = sqrtf(pow(m_localAiEntities[i].position.x - m_aiEntities[i].position.x, 2) + pow(m_localAiEntities[i].position.y - m_aiEntities[i].position.y, 2));
-				if (temp > 1.0f)
+				if (temp > 5.0f)
 				{
 					m_localAiEntities[i].displacedTick++;
 				}
@@ -162,7 +168,6 @@ bool AssessmentNetworkingApplication::update(float deltaTime) {
 	return true;
 }
 void AssessmentNetworkingApplication::draw() {
-
 	// clear the screen for this frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -179,4 +184,15 @@ void AssessmentNetworkingApplication::draw() {
 
 	// display the 3D gizmos
 	Gizmos::draw(m_camera->getProjectionView());
+}
+float AssessmentNetworkingApplication::Lerp(float a_start, float a_end, float a_lerpAmount, float a_allowance)
+{
+	//lerp with a variable minimum value
+	float difference = a_end - a_start;
+	if (difference > a_allowance)
+		return a_start + a_lerpAmount;
+	if (difference < -a_allowance)
+		return a_start - a_lerpAmount;
+
+	return a_end;
 }
