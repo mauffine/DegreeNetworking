@@ -32,5 +32,6 @@ private:
 
 	std::vector<AIEntity>		m_aiEntities;
 	std::vector<AIEntity>		m_localAiEntities;
+	//just checking how many Packets I recieve to help tell me latency
 	int m_packetsRecieved = 0;
 };
